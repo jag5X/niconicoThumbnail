@@ -1,0 +1,21 @@
+﻿{
+  "name": "ニコニコサムネイル",
+  "version": "1.2.4",
+  "manifest_version": 2,
+  "description": "ニコニコ動画内のリンクにマウスオーバーでサムネイルを表示します。",
+  "icons": {
+    "48": "icon_small.png",
+    "128": "icon_large.png"
+  },
+  "options_page": "options.html",
+  "background": {
+    "scripts": ["define.js", "background.js"],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*.nicovideo.jp/*"],
+      "js": ["jquery.min.js", "define.js", "thumbnail.js"]
+    }
+  ]
+}
