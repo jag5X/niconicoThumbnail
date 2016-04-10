@@ -14,12 +14,15 @@
     <IISExpressAnonymousAuthentication />
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="tsconfig.json" />
     <TypeScriptCompile Include="src\background.ts" />
     <TypeScriptCompile Include="src\define.ts" />
     <TypeScriptCompile Include="src\thumbnail.ts" />
     <TypeScriptCompile Include="src\options.ts" />
+    <Content Include="README.md" />
     <None Include="src\jquery.d.ts" />
     <None Include="package\icon_large.png" />
     <None Include="package\icon_small.png" />
@@ -59,18 +62,6 @@
     </VisualStudio>
   </ProjectExtensions>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <TypeScriptTarget>ES3</TypeScriptTarget>
-    <TypeScriptIncludeComments>true</TypeScriptIncludeComments>
-    <TypeScriptSourceMap>False</TypeScriptSourceMap>
-    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
-    <TypeScriptOutDir>package</TypeScriptOutDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <TypeScriptTarget>ES3</TypeScriptTarget>
-    <TypeScriptIncludeComments>false</TypeScriptIncludeComments>
-    <TypeScriptSourceMap>False</TypeScriptSourceMap>
-    <TypeScriptModuleKind>AMD</TypeScriptModuleKind>
-    <TypeScriptOutDir>package</TypeScriptOutDir>
   </PropertyGroup>
   <Import Project="$(VSToolsPath)\TypeScript\Microsoft.TypeScript.targets" />
 </Project>

@@ -1,0 +1,13 @@
+﻿{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2015",
+    "rootDir": "src",
+    "outDir": "package",
+    "removeComments": true,
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "sourceMap": false
+  }
+}
