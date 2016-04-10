@@ -1,11 +1,10 @@
-﻿/// <reference path="jquery.d.ts"/>
-/// <reference path="define.ts"/>
+﻿"use strict";
 
 class ThumbnailManager {
-    thumbnailUrl: { [key: string]: string; };
-    thumbnail: HTMLIFrameElement;
-    options: Options;
-    isShowed: boolean;
+    private thumbnailUrl: { [key: string]: string; };
+    private thumbnail: HTMLIFrameElement;
+    private options: Options;
+    private isShowed: boolean;
 
     constructor() {
         // URLの文字列定義
@@ -19,16 +18,15 @@ class ThumbnailManager {
         this.thumbnailUrl[Thumbnail.solid] = 'http://3d.nicovideo.jp/externals/widget?id=';
         
         this.isShowed = false;
-    }
 
-    public initialize(): void {
+        // 設定読込
         chrome.extension.sendMessage("getOptions", (info: Options) => {
             this.options = info;
         });
-
+        
         // マウスオーバー時サムネイル作成
         $(document).on("mouseover", "a", (e: JQueryEventObject) => {
-            this.createThumbnail(<HTMLAnchorElement>e.target, e.pageX + 5, e.pageY + 5);
+            this.createThumbnail((<HTMLAnchorElement>e.target).innerText, e.pageX + 5, e.pageY + 5);
         });
 
         // マウスアウト時サムネイル消去（設定による）
@@ -55,13 +53,13 @@ class ThumbnailManager {
     }
 
     // サムネイルの作成
-    private createThumbnail(link: HTMLAnchorElement, x: number, y: number): void {
+    private createThumbnail(id: string, x: number, y: number): void {
 
-        // リンクの文字列からURLを作成
-        var kind: string;
-        var id: string = link.innerText;
-        var matchResult: string[];
         if (id == null) return;
+        
+        let kind: string;
+        let matchResult: string[];
+
         if (this.options.isShow[Thumbnail.watch] && (matchResult = id.match(/([sn]m[0-9]+)/))) {
             kind = Thumbnail.watch;
             id = matchResult[1];
@@ -106,7 +104,6 @@ class ThumbnailManager {
             height: 200,
             left: x,
             top: y,
-            overflow: 'hidden',
             position: 'absolute',
             zIndex: 2147483647,
         });
@@ -117,6 +114,5 @@ class ThumbnailManager {
 }
 
 $(() => {
-    var manager = new ThumbnailManager();
-    manager.initialize();
+    const manager = new ThumbnailManager();
 });

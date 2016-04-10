@@ -1,4 +1,6 @@
-declare var chrome;
+"use strict";
+
+declare const chrome;
 
 class Thumbnail {
     static watch = "watch";
