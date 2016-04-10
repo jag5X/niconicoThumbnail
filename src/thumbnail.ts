@@ -4,7 +4,6 @@
 class ThumbnailManager {
     thumbnailUrl: { [key: string]: string; };
     thumbnail: HTMLIFrameElement;
-    thumbnailBase: HTMLIFrameElement;
     options: Options;
     isShowed: boolean;
 
@@ -18,13 +17,7 @@ class ThumbnailManager {
         this.thumbnailUrl[Thumbnail.seiga] = 'http://ext.seiga.nicovideo.jp/thumb/';
         this.thumbnailUrl[Thumbnail.live] = 'http://live.nicovideo.jp/embed/';
         this.thumbnailUrl[Thumbnail.solid] = 'http://3d.nicovideo.jp/externals/widget?id=';
-
-        this.thumbnailBase = <HTMLIFrameElement>$(document.createElement("iframe")).context;
-        this.thumbnailBase.width = "312";
-        this.thumbnailBase.height = "176";
-        this.thumbnailBase.scrolling = "no";
-        this.thumbnailBase.frameBorder = "0";
-
+        
         this.isShowed = false;
     }
 
@@ -56,7 +49,7 @@ class ThumbnailManager {
     // サムネイル消去
     private removeThumbnail(): void {
         if (this.isShowed) {
-            this.thumbnail.style.display = "none";
+            document.body.removeChild(this.thumbnail);
             this.isShowed = false;
         }
     }
@@ -102,20 +95,24 @@ class ThumbnailManager {
         this.removeThumbnail();
 
         // サムネイルのスタイル設定
-        this.thumbnail = <HTMLIFrameElement>this.thumbnailBase.cloneNode();
-        this.thumbnail.src = this.thumbnailUrl[kind] + id;
-        this.thumbnail.style = this.createStyle(this.thumbnail.style, x, y);
+        this.thumbnail = <HTMLIFrameElement>$(document.createElement("iframe")).context;
+        $(this.thumbnail).attr({
+            src: this.thumbnailUrl[kind] + id,
+            scrolling: 'no',
+            frameborder: 0,
+        });
+        $(this.thumbnail).css({
+            width: 350,
+            height: 200,
+            left: x,
+            top: y,
+            overflow: 'hidden',
+            position: 'absolute',
+            zIndex: 2147483647,
+        });
         document.body.appendChild(this.thumbnail);
 
         this.isShowed = true;
-    }
-
-    createStyle(style: MSStyleCSSProperties, x: number, y: number): MSStyleCSSProperties {
-        style.position = "absolute";
-        style.zIndex = "2147483647";
-        style.left = x + "px";
-        style.top = y + "px";
-        return style;
     }
 }
 
