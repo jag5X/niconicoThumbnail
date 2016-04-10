@@ -8,12 +8,16 @@ $(() => {
     }
 
     eachCheckbox((x: HTMLInputElement) => {
-        x.checked = localStorage[x.id] == "true";
+        chrome.storage.local.get(x.id, (s) => {
+            x.checked = s[x.id];
+        });
     });
 
     $("#save").click(() => {
         eachCheckbox((x: HTMLInputElement) => {
-            localStorage[x.id] = x.checked;
+            let data = {};
+            data[x.id] = x.checked;
+            chrome.storage.local.set(data);
         });
 
         $("#status").text("保存しました。");

@@ -10,13 +10,10 @@ class Thumbnail {
     static seiga = "seiga";
     static live = "live";
     static solid = "solid";
+    static removeClick = "removeClick";
 }
 
-class Options {
-    isShow: { [key: string]: boolean; };
-    removeClick: boolean;
-
-    constructor() {
-        this.isShow = {};
-    }
+class Settings {
+    public isShow = new Map<string, boolean>();
+    public removeClick: boolean;
 }

@@ -1,14 +1,14 @@
 ﻿"use strict";
 
 class ThumbnailManager {
-    private thumbnailUrl: { [key: string]: string; };
+    private thumbnailUrl: Map<string, string>;
     private thumbnail: HTMLIFrameElement;
-    private options: Options;
+    private settings: Settings;
     private isShowed: boolean;
 
     constructor() {
         // URLの文字列定義
-        this.thumbnailUrl = {};
+        this.thumbnailUrl = new Map<string, string>();
         this.thumbnailUrl[Thumbnail.watch] = 'http://ext.nicovideo.jp/thumb/';
         this.thumbnailUrl[Thumbnail.mylist] = 'http://ext.nicovideo.jp/thumb_';
         this.thumbnailUrl[Thumbnail.user] = 'http://ext.nicovideo.jp/thumb_';
@@ -20,8 +20,16 @@ class ThumbnailManager {
         this.isShowed = false;
 
         // 設定読込
-        chrome.extension.sendMessage("getOptions", (info: Options) => {
-            this.options = info;
+        this.settings = new Settings();
+        chrome.storage.local.get(null, (data: Map<string, boolean>) => {
+            this.settings.isShow[Thumbnail.watch] = data[Thumbnail.watch];
+            this.settings.isShow[Thumbnail.mylist] = data[Thumbnail.mylist];
+            this.settings.isShow[Thumbnail.user] = data[Thumbnail.user];
+            this.settings.isShow[Thumbnail.community] = data[Thumbnail.community];
+            this.settings.isShow[Thumbnail.seiga] = data[Thumbnail.seiga];
+            this.settings.isShow[Thumbnail.live] = data[Thumbnail.live];
+            this.settings.isShow[Thumbnail.solid] = data[Thumbnail.solid];
+            this.settings.removeClick = data[Thumbnail.removeClick];
         });
         
         // マウスオーバー時サムネイル作成
@@ -31,14 +39,14 @@ class ThumbnailManager {
 
         // マウスアウト時サムネイル消去（設定による）
         $(document).on("mouseout", "a", () => {
-            if (!this.options.removeClick) {
+            if (!this.settings.removeClick) {
                 this.removeThumbnail();
             }
         });
 
         // マウスダウン時サムネイル消去（設定による）
         $(document).mousedown(() => {
-            if (this.options.removeClick) {
+            if (this.settings.removeClick) {
                 this.removeThumbnail();
             }
         });
@@ -60,30 +68,30 @@ class ThumbnailManager {
         let kind: string;
         let matchResult: string[];
 
-        if (this.options.isShow[Thumbnail.watch] && (matchResult = id.match(/([sn]m[0-9]+)/))) {
+        if (this.settings.isShow[Thumbnail.watch] && (matchResult = id.match(/([sn]m[0-9]+)/))) {
             kind = Thumbnail.watch;
             id = matchResult[1];
         }
-        else if (this.options.isShow[Thumbnail.watch] && (matchResult = id.match(/^watch\/([0-9]+)$/))) {
+        else if (this.settings.isShow[Thumbnail.watch] && (matchResult = id.match(/^watch\/([0-9]+)$/))) {
             kind = Thumbnail.watch;
             id = matchResult[1];
         }
-        else if (this.options.isShow[Thumbnail.mylist] && id.match(/^mylist\/[0-9]+$/)) {
+        else if (this.settings.isShow[Thumbnail.mylist] && id.match(/^mylist\/[0-9]+$/)) {
             kind = Thumbnail.mylist;
         }
-        else if (this.options.isShow[Thumbnail.user] && id.match(/^user\/[0-9]+$/)) {
+        else if (this.settings.isShow[Thumbnail.user] && id.match(/^user\/[0-9]+$/)) {
             kind = Thumbnail.user;
         }
-        else if (this.options.isShow[Thumbnail.community] && id.match(/^co[0-9]+$/)) {
+        else if (this.settings.isShow[Thumbnail.community] && id.match(/^co[0-9]+$/)) {
             kind = Thumbnail.community;
         }
-        else if (this.options.isShow[Thumbnail.seiga] && id.match(/^im[0-9]+$/)) {
+        else if (this.settings.isShow[Thumbnail.seiga] && id.match(/^im[0-9]+$/)) {
             kind = Thumbnail.seiga;
         }
-        else if (this.options.isShow[Thumbnail.live] && id.match(/^lv[0-9]+$/)) {
+        else if (this.settings.isShow[Thumbnail.live] && id.match(/^lv[0-9]+$/)) {
             kind = Thumbnail.live;
         }
-        else if (this.options.isShow[Thumbnail.solid] && id.match(/^td[0-9]+$/)) {
+        else if (this.settings.isShow[Thumbnail.solid] && id.match(/^td[0-9]+$/)) {
             kind = Thumbnail.solid;
         }
         else {
