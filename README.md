@@ -8,13 +8,12 @@
 
 開発環境
 ----------
-- Visual Studio 2013 Update2 以降 
-- TypeScript
+- Visual Studio 2015
+- TypeScript 1.8
 
 ビルド
 ----------
-ビルドすると package ディレクトリに js ファイルが出力されます。  
-この package ディレクトリが拡張機能本体となります。
+ビルドすると package ディレクトリに拡張機能に必要な各種ファイルが出力されます。
 
 ストア
 ----------
