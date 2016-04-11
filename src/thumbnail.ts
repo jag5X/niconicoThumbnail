@@ -22,14 +22,7 @@ class ThumbnailManager {
         // 設定読込
         this.settings = new Settings();
         chrome.storage.local.get(null, (data: Map<string, boolean>) => {
-            this.settings.isShow[Thumbnail.watch] = data[Thumbnail.watch];
-            this.settings.isShow[Thumbnail.mylist] = data[Thumbnail.mylist];
-            this.settings.isShow[Thumbnail.user] = data[Thumbnail.user];
-            this.settings.isShow[Thumbnail.community] = data[Thumbnail.community];
-            this.settings.isShow[Thumbnail.seiga] = data[Thumbnail.seiga];
-            this.settings.isShow[Thumbnail.live] = data[Thumbnail.live];
-            this.settings.isShow[Thumbnail.solid] = data[Thumbnail.solid];
-            this.settings.removeClick = data[Thumbnail.removeClick];
+            this.settings.set(data);
         });
         
         // マウスオーバー時サムネイル作成
