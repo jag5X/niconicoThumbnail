@@ -37,9 +37,10 @@ class ThumbnailManager {
             }
         });
 
-        // マウスダウン時サムネイル消去（設定による）
-        $(document).mousedown(() => {
-            if (this.settings.removeClick) {
+        // マウスダウン時サムネイル消去
+        $(document).mousedown((e: JQueryMouseEventObject) => {
+            if (this.settings.removeClick ||
+                e.target.tagName == "A") {
                 this.removeThumbnail();
             }
         });
@@ -65,26 +66,26 @@ class ThumbnailManager {
             kind = Thumbnail.watch;
             id = matchResult[1];
         }
-        else if (this.settings.isShow[Thumbnail.watch] && (matchResult = id.match(/^watch\/([0-9]+)$/))) {
+        else if (this.settings.isShow[Thumbnail.watch] && (matchResult = id.match(/watch\/([0-9]+)/))) {
             kind = Thumbnail.watch;
             id = matchResult[1];
         }
-        else if (this.settings.isShow[Thumbnail.mylist] && id.match(/^mylist\/[0-9]+$/)) {
+        else if (this.settings.isShow[Thumbnail.mylist] && id.match(/mylist\/[0-9]+/)) {
             kind = Thumbnail.mylist;
         }
-        else if (this.settings.isShow[Thumbnail.user] && id.match(/^user\/[0-9]+$/)) {
+        else if (this.settings.isShow[Thumbnail.user] && id.match(/user\/[0-9]+/)) {
             kind = Thumbnail.user;
         }
-        else if (this.settings.isShow[Thumbnail.community] && id.match(/^co[0-9]+$/)) {
+        else if (this.settings.isShow[Thumbnail.community] && id.match(/co[0-9]+/)) {
             kind = Thumbnail.community;
         }
-        else if (this.settings.isShow[Thumbnail.seiga] && id.match(/^im[0-9]+$/)) {
+        else if (this.settings.isShow[Thumbnail.seiga] && id.match(/im[0-9]+/)) {
             kind = Thumbnail.seiga;
         }
-        else if (this.settings.isShow[Thumbnail.live] && id.match(/^lv[0-9]+$/)) {
+        else if (this.settings.isShow[Thumbnail.live] && id.match(/lv[0-9]+/)) {
             kind = Thumbnail.live;
         }
-        else if (this.settings.isShow[Thumbnail.solid] && id.match(/^td[0-9]+$/)) {
+        else if (this.settings.isShow[Thumbnail.solid] && id.match(/td[0-9]+/)) {
             kind = Thumbnail.solid;
         }
         else {
