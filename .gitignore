@@ -192,3 +192,6 @@ FakesAssemblies/
 *.js
 *.js.map
 !jquery.min.js
+
+# Visual Studio 2015 cache/options directory
+.vs/
