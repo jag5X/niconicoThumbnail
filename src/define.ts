@@ -2,7 +2,19 @@
 
 declare const chrome;
 
-class Thumbnail {
+enum ThumbnailKind {
+    Watch,
+    Mylist,
+    User,
+    Community,
+    Seiga,
+    Live,
+    Solid,
+
+    Count
+}
+
+class SettingsId {
     static watch = "watch";
     static mylist = "mylist";
     static user = "user";
@@ -11,37 +23,58 @@ class Thumbnail {
     static live = "live";
     static solid = "solid";
     static removeClick = "removeClick";
+
+    static getId(kind: ThumbnailKind): string {
+        switch (kind) {
+            case ThumbnailKind.Watch:
+                return SettingsId.watch;
+            case ThumbnailKind.Mylist:
+                return SettingsId.mylist;
+            case ThumbnailKind.User:
+                return SettingsId.user;
+            case ThumbnailKind.Community:
+                return SettingsId.community;
+            case ThumbnailKind.Seiga:
+                return SettingsId.seiga;
+            case ThumbnailKind.Live:
+                return SettingsId.live;
+            case ThumbnailKind.Solid:
+                return SettingsId.solid;
+            default:
+                return null;
+        }
+    }
 }
 
 class Settings {
-    public isShow = new Map<string, boolean>();
-    public removeClick: boolean;
+    private applying = new Map<string, boolean>();
 
     constructor() {
-        this.isShow[Thumbnail.watch] = true;
-        this.isShow[Thumbnail.mylist] = true;
-        this.isShow[Thumbnail.user] = true;
-        this.isShow[Thumbnail.community] = true;
-        this.isShow[Thumbnail.seiga] = true;
-        this.isShow[Thumbnail.live] = true;
-        this.isShow[Thumbnail.solid] = true;
-        this.removeClick = false;
+        for (let i = 0; i < ThumbnailKind.Count; i++) {
+            this.applying[SettingsId.getId(i)] = true;
+        }
+        this.applying[SettingsId.removeClick] = false;
     }
 
     public set(data: Map<string, boolean>): void {
-        this.isShow[Thumbnail.watch] = data[Thumbnail.watch];
-        this.isShow[Thumbnail.mylist] = data[Thumbnail.mylist];
-        this.isShow[Thumbnail.user] = data[Thumbnail.user];
-        this.isShow[Thumbnail.community] = data[Thumbnail.community];
-        this.isShow[Thumbnail.seiga] = data[Thumbnail.seiga];
-        this.isShow[Thumbnail.live] = data[Thumbnail.live];
-        this.isShow[Thumbnail.solid] = data[Thumbnail.solid];
-        this.removeClick = data[Thumbnail.removeClick];
+        for (let s in data) {
+            this.applying[s] = data[s];
+        }
     }
 
-    public getMap(): Map<string, boolean> {
-        let m = this.isShow;
-        m[Thumbnail.removeClick] = this.removeClick;
-        return m;
+    public get(): Map<string, boolean> {
+        return this.applying;
+    }
+
+    public isShow(kind: ThumbnailKind): boolean {
+        let id = SettingsId.getId(kind);
+        if (id == null) {
+            return false;
+        }
+        return this.applying[id];
+    }
+
+    public isShowUntilClick(): boolean {
+        return this.applying[SettingsId.removeClick];
     }
 }

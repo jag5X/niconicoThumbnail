@@ -1,21 +1,32 @@
 ﻿"use strict";
 
 class ThumbnailManager {
-    private thumbnailUrl: Map<string, string>;
+    private thumbnailUrl: Map<ThumbnailKind, string>;
+    private regExps: Map<ThumbnailKind, RegExp>;
     private thumbnail: HTMLIFrameElement;
     private settings: Settings;
     private isShowed: boolean;
 
     constructor() {
         // URLの文字列定義
-        this.thumbnailUrl = new Map<string, string>();
-        this.thumbnailUrl[Thumbnail.watch] = 'http://ext.nicovideo.jp/thumb/';
-        this.thumbnailUrl[Thumbnail.mylist] = 'http://ext.nicovideo.jp/thumb_';
-        this.thumbnailUrl[Thumbnail.user] = 'http://ext.nicovideo.jp/thumb_';
-        this.thumbnailUrl[Thumbnail.community] = 'http://ext.nicovideo.jp/thumb_community/';
-        this.thumbnailUrl[Thumbnail.seiga] = 'http://ext.seiga.nicovideo.jp/thumb/';
-        this.thumbnailUrl[Thumbnail.live] = 'http://live.nicovideo.jp/embed/';
-        this.thumbnailUrl[Thumbnail.solid] = 'http://3d.nicovideo.jp/externals/widget?id=';
+        this.thumbnailUrl = new Map<ThumbnailKind, string>();
+        this.thumbnailUrl[ThumbnailKind.Watch] = 'http://ext.nicovideo.jp/thumb/';
+        this.thumbnailUrl[ThumbnailKind.Mylist] = 'http://ext.nicovideo.jp/thumb_';
+        this.thumbnailUrl[ThumbnailKind.User] = 'http://ext.nicovideo.jp/thumb_';
+        this.thumbnailUrl[ThumbnailKind.Community] = 'http://ext.nicovideo.jp/thumb_community/';
+        this.thumbnailUrl[ThumbnailKind.Seiga] = 'http://ext.seiga.nicovideo.jp/thumb/';
+        this.thumbnailUrl[ThumbnailKind.Live] = 'http://live.nicovideo.jp/embed/';
+        this.thumbnailUrl[ThumbnailKind.Solid] = 'http://3d.nicovideo.jp/externals/widget?id=';
+
+        // 各リンク先種類の正規表現定義
+        this.regExps = new Map<ThumbnailKind, RegExp>();
+        this.regExps[ThumbnailKind.Watch] = /([sn]m[0-9]+)|watch\/([0-9]+)/;
+        this.regExps[ThumbnailKind.Mylist] = /(mylist\/[0-9]+)/;
+        this.regExps[ThumbnailKind.User] = /(user\/[0-9]+)/;
+        this.regExps[ThumbnailKind.Community] = /(co[0-9]+)/;
+        this.regExps[ThumbnailKind.Seiga] = /(im[0-9]+)/;
+        this.regExps[ThumbnailKind.Live] = /(lv[0-9]+)/;
+        this.regExps[ThumbnailKind.Solid] = /(td[0-9]+)/;
         
         this.isShowed = false;
 
@@ -32,14 +43,14 @@ class ThumbnailManager {
 
         // マウスアウト時サムネイル消去（設定による）
         $(document).on("mouseout", "a", () => {
-            if (!this.settings.removeClick) {
+            if (!this.settings.isShowUntilClick()) {
                 this.removeThumbnail();
             }
         });
 
         // マウスダウン時サムネイル消去
         $(document).mousedown((e: JQueryMouseEventObject) => {
-            if (this.settings.removeClick ||
+            if (this.settings.isShowUntilClick() ||
                 e.target.tagName == "A") {
                 this.removeThumbnail();
             }
@@ -54,50 +65,44 @@ class ThumbnailManager {
         }
     }
 
+    private createUrl(id: string): string {
+        for (let i = 0; i < ThumbnailKind.Count; i++) {
+            if (!this.settings.isShow(i)) {
+                continue;
+            }
+            let result = id.match(this.regExps[i]);
+            if (!result) {
+                continue;
+            }
+            for (let j = 1; j < result.length; j++) {
+                if (result[j]) {
+                    return this.thumbnailUrl[i] + result[j];
+                }
+            }
+        }
+        return null;
+    }
+
     // サムネイルの作成
     private createThumbnail(id: string, x: number, y: number): void {
 
-        if (id == null) return;
+        if (!id) return;
         
         let kind: string;
         let matchResult: string[];
 
-        if (this.settings.isShow[Thumbnail.watch] && (matchResult = id.match(/([sn]m[0-9]+)/))) {
-            kind = Thumbnail.watch;
-            id = matchResult[1];
-        }
-        else if (this.settings.isShow[Thumbnail.watch] && (matchResult = id.match(/watch\/([0-9]+)/))) {
-            kind = Thumbnail.watch;
-            id = matchResult[1];
-        }
-        else if (this.settings.isShow[Thumbnail.mylist] && id.match(/mylist\/[0-9]+/)) {
-            kind = Thumbnail.mylist;
-        }
-        else if (this.settings.isShow[Thumbnail.user] && id.match(/user\/[0-9]+/)) {
-            kind = Thumbnail.user;
-        }
-        else if (this.settings.isShow[Thumbnail.community] && id.match(/co[0-9]+/)) {
-            kind = Thumbnail.community;
-        }
-        else if (this.settings.isShow[Thumbnail.seiga] && id.match(/im[0-9]+/)) {
-            kind = Thumbnail.seiga;
-        }
-        else if (this.settings.isShow[Thumbnail.live] && id.match(/lv[0-9]+/)) {
-            kind = Thumbnail.live;
-        }
-        else if (this.settings.isShow[Thumbnail.solid] && id.match(/td[0-9]+/)) {
-            kind = Thumbnail.solid;
-        }
-        else {
-            return;
-        }
+        console.log("mouse over to : " + id);
+
+        let url = this.createUrl(id);
+        if (!url) return;
 
         this.removeThumbnail();
+        console.log("created thumbnail url : " + url);
 
         // サムネイルのスタイル設定
         this.thumbnail = <HTMLIFrameElement>$(document.createElement("iframe")).context;
         $(this.thumbnail).attr({
-            src: this.thumbnailUrl[kind] + id,
+            src: url,
             scrolling: 'no',
             frameborder: 0,
         });
