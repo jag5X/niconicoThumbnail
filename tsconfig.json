@@ -1,13 +1,10 @@
 ﻿{
   "compileOnSave": true,
   "compilerOptions": {
-    "module": "commonjs",
     "target": "es6",
     "rootDir": "src",
     "outDir": "package",
     "removeComments": true,
-    "noImplicitAny": false,
-    "noEmitOnError": true,
-    "sourceMap": false
+    "noEmitOnError": true
   }
 }
