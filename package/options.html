@@ -3,28 +3,66 @@
 <head>
     <meta charset="utf-8">
     <title>ニコニコサムネイル　オプション</title>
-    <link rel="stylesheet" href="/style.css" type="text/css" />
+    <link rel="stylesheet" href="/style.css" type="text/css">
     <script type="text/javascript" src="/jquery.min.js"></script>
     <script type="text/javascript" src="/options.js"></script>
 </head>
 <body>
     <ul>
-        <li><strong>動作するリンクの選択</strong></li>
-        <li><input type="checkbox" id="watch" />動画 (sm0000 or nm0000 or watch/0000)</li>
-        <li><input type="checkbox" id="mylist" />マイリスト (mylist/0000)</li>
-        <li><input type="checkbox" id="user" />ユーザー (user/0000)</li>
-        <li><input type="checkbox" id="community" />コミュニティ (co0000)</li>
-        <li><input type="checkbox" id="seiga" />静画 (im0000)</li>
-        <li><input type="checkbox" id="live" />生放送 (lv0000)</li>
-        <li><input type="checkbox" id="solid" />立体 (td0000)</li>
+        <li class="option-title">動作するリンクの選択</li>
+        <li>
+            <label>
+                <input type="checkbox" id="watch">
+                動画 (sm0000 or nm0000 or watch/0000)
+            </label>
+        </li>
+        <li>
+            <label>
+                <input type="checkbox" id="mylist">
+                マイリスト (mylist/0000)
+            </label>
+        </li>
+        <li>
+            <label>
+                <input type="checkbox" id="user">
+                ユーザー (user/0000)
+            </label>
+        </li>
+        <li>
+            <label>
+                <input type="checkbox" id="community">
+                コミュニティ (co0000)
+            </label>
+        </li>
+        <li>
+            <label>
+                <input type="checkbox" id="seiga">
+                静画 (im0000)
+            </label>
+        </li>
+        <li>
+            <label>
+                <input type="checkbox" id="live">
+                生放送 (lv0000)
+            </label>
+        </li>
+        <li>
+            <label>
+                <input type="checkbox" id="solid">
+                立体 (td0000)
+            </label>
+        </li>
     </ul>
     <ul>
-        <li><strong>動作設定</strong></li>
-        <li><input type="checkbox" id="removeClick" />他のサムネイルを表示するかマウスクリックするまでサムネイルを表示し続ける</li>
+        <li class="option-title"><strong>動作設定</strong></li>
+        <li>
+            <label>
+                <input type="checkbox" id="removeClick">
+                他のサムネイルを表示するかマウスクリックするまでサムネイルを表示し続ける
+            </label>
+        </li>
     </ul>
-    <p>
     <button id="save">保存</button>
-    </p>
     <p id="status">
     </p>
 </body>

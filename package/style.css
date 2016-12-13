@@ -1,14 +1,57 @@
-@charset "utf-8";
-body {
-    margin:0;
-    padding:1em 0 0 1em;
+﻿@charset "utf-8";
+
+body
+{
+    font-size: large;
 }
-ul {
-    margin:0;
-    padding:0 0 1em 0;
+
+ul
+{
+    margin: 30px;
 }
-li {
-    margin:0;
-    padding:0.1em;
-    list-style:none;
+
+li
+{
+    margin:     10px;
+    list-style: none;
+}
+
+li label
+{
+    cursor:         pointer;
+	padding-left:   48px;
+    line-height:    32px;
+	display:        inline-block;
+	position:       relative;
+}
+
+.option-title
+{
+    font-weight:    bold;
+}
+
+input[type=checkbox]
+{
+	width:              32px;
+	height:             32px;
+	display:            inline-block;
+	position:           absolute;
+    top:                -2px;
+	left:               0;
+	border-radius:		6px;
+    cursor:             pointer;
+}
+
+button#save
+{
+    margin-top: 20px;
+    margin-left: 80px;
+    padding: 10px 30px;
+    font-size: large;
+}
+
+p#status
+{
+    margin-left: 80px;
+    font-weight: bold;
 }
