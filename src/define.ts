@@ -1,6 +1,7 @@
 "use strict";
 
 declare const chrome;
+declare const browser;
 
 enum ThumbnailKind {
     Watch,

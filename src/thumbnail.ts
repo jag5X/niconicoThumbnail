@@ -1,5 +1,7 @@
 ﻿"use strict";
 
+var api = 'browser' in this ? browser : chrome;
+
 class ThumbnailManager {
     private thumbnailUrl: Map<ThumbnailKind, string>;
     private regExps: Map<ThumbnailKind, RegExp>;
@@ -32,7 +34,7 @@ class ThumbnailManager {
 
         // 設定読込
         this.settings = new Settings();
-        chrome.storage.local.get(null, (data: Map<string, boolean>) => {
+        api.storage.local.get(null, (data: Map<string, boolean>) => {
             this.settings.set(data);
         });
         

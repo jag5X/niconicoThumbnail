@@ -1,5 +1,7 @@
 ﻿"use strict";
 
+var api = 'browser' in this ? browser : chrome;
+
 $(() => {
     function eachCheckbox(func: (checkbox: HTMLInputElement) => void) {
         $(":checkbox").each((i: number, x: HTMLInputElement) => {
@@ -8,7 +10,7 @@ $(() => {
     }
 
     eachCheckbox((x: HTMLInputElement) => {
-        chrome.storage.local.get(x.id, (s) => {
+        api.storage.local.get(x.id, (s) => {
             x.checked = s[x.id];
         });
     });
@@ -17,7 +19,7 @@ $(() => {
         eachCheckbox((x: HTMLInputElement) => {
             let data = {};
             data[x.id] = x.checked;
-            chrome.storage.local.set(data);
+            api.storage.local.set(data);
         });
 
         $("#status").text("保存しました。");
