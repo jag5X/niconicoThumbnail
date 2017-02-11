@@ -90,9 +90,6 @@ class ThumbnailManager {
 
         if (!id) return;
         
-        let kind: string;
-        let matchResult: string[];
-
         console.log("mouse over to : " + id);
 
         let url = this.createUrl(id);
