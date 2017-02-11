@@ -5,10 +5,16 @@ var api = 'browser' in this ? browser : chrome;
 class ThumbnailManager {
     private thumbnailUrl: Map<ThumbnailKind, string>;
     private regExps: Map<ThumbnailKind, RegExp>;
+    private locationPath: Map<LocationKind, string>;
     private thumbnail: HTMLIFrameElement;
     private settings: Settings;
     private isShowed: boolean;
+    private isDisabledNormalThumbnail: boolean;
+    private isCancel: boolean;
 
+    private watchHostName = "www.nicovideo.jp";
+    private videoLinkPattern: RegExp = /^\/watch\/((?:sm|nm|so)?[0-9]+)/;
+    
     constructor() {
         // URLの文字列定義
         this.thumbnailUrl = new Map<ThumbnailKind, string>();
@@ -29,8 +35,18 @@ class ThumbnailManager {
         this.regExps[ThumbnailKind.Seiga] = /(im[0-9]+)/;
         this.regExps[ThumbnailKind.Live] = /(lv[0-9]+)/;
         this.regExps[ThumbnailKind.Solid] = /(td[0-9]+)/;
+
+        // ページの種類を識別するパス
+        this.locationPath = new Map<LocationKind, string>();
+        this.locationPath[LocationKind.Ranking] = "/" + LocationSettings.ranking;
+        this.locationPath[LocationKind.Search] = "/" + LocationSettings.search;
+        this.locationPath[LocationKind.Tag] = "/" + LocationSettings.tag;
+        this.locationPath[LocationKind.VideoExplorer] = "/" + LocationSettings.videoExplorer;
         
         this.isShowed = false;
+
+        this.isDisabledNormalThumbnail = location.hostname == this.watchHostName &&
+            location.pathname.startsWith(this.locationPath[LocationKind.Ranking]);
 
         // 設定読込
         this.settings = new Settings();
@@ -40,11 +56,13 @@ class ThumbnailManager {
         
         // マウスオーバー時サムネイル作成
         $(document).on("mouseover", "a", (e: JQueryEventObject) => {
-            this.createThumbnail((<HTMLAnchorElement>e.target).innerText, e.pageX + 5, e.pageY + 5);
+            this.isCancel = true;
+            this.createThumbnail((<HTMLAnchorElement>e.currentTarget), e.pageX + 5, e.pageY + 5);
         });
 
         // マウスアウト時サムネイル消去（設定による）
         $(document).on("mouseout", "a", () => {
+            this.isCancel = true;
             if (!this.settings.isKeepUntilClick()) {
                 this.removeThumbnail();
             }
@@ -52,6 +70,7 @@ class ThumbnailManager {
 
         // マウスダウン時サムネイル消去
         $(document).mousedown((e: JQueryMouseEventObject) => {
+            this.isCancel = true;
             if (this.settings.isKeepUntilClick() ||
                 e.target.tagName == "A") {
                 this.removeThumbnail();
@@ -67,7 +86,14 @@ class ThumbnailManager {
         }
     }
 
-    private createUrl(id: string): string {
+    private createUrl(anchor: HTMLAnchorElement): string {
+        if (this.isDisabledNormalThumbnail) {
+            return null;
+        }
+        let id = anchor.innerText;
+        if (!id) {
+            return null;
+        }
         for (let i = 0; i < ThumbnailKind.Count; i++) {
             if (!this.settings.isShow(i)) {
                 continue;
@@ -85,16 +111,80 @@ class ThumbnailManager {
         return null;
     }
 
+    private createUserThumbnail(anchor: HTMLAnchorElement, x: number, y: number): void {
+        if (location.hostname != this.watchHostName) {
+            return;
+        }
+        for (let i = 0; i < LocationKind.Count; i++) {
+            if (!this.settings.isShowUserForVieoLink(i)) {
+                continue;
+            }
+            switch (i) {
+                case LocationKind.VideoExplorer:
+                    if (!location.pathname.endsWith(this.locationPath[i])) {
+                        continue;
+                    }
+                    break;
+                default:
+                    if (!location.pathname.startsWith(this.locationPath[i])) {
+                        continue;
+                    }
+                    break;
+            }
+            let path = anchor.pathname;
+            if (!path) {
+                break;
+            }
+            let result = anchor.pathname.match(this.videoLinkPattern);
+            if (!result) {
+                break;
+            }
+            this.isCancel = false;
+            let id: string = result[1];
+            $.ajax({
+                url: "http://ext.nicovideo.jp/api/getthumbinfo/" + id,
+                type: 'GET',
+                dataType: 'xml',
+                timeout: 1000,
+                success: (xml: XMLDocument) => {
+                    if (this.isCancel) {
+                        return;
+                    }
+                    let user = $(xml).find("user_id");
+                    if (user.length > 0) {
+                        let userId = user.first().text();
+                        if (!userId) {
+                            return;
+                        }
+                        this.createThumbnailDirect(this.thumbnailUrl[ThumbnailKind.User] + "user/" + userId, x, y);
+                        return;
+                    }
+                    let ch = $(xml).find("ch_id");
+                    if (ch.length > 0) {
+                        let chId = ch.first().text();
+                        if (!chId) {
+                            return;
+                        }
+                        this.createThumbnailDirect("http://ch.nicovideo.jp/ch" + chId + "/thumb_channel", x, y);
+                    }
+                }
+            });
+        }
+    }
+
     // サムネイルの作成
-    private createThumbnail(id: string, x: number, y: number): void {
-
-        if (!id) return;
-        
-        console.log("mouse over to : " + id);
-
-        let url = this.createUrl(id);
-        if (!url) return;
-
+    private createThumbnail(anchor: HTMLAnchorElement, x: number, y: number): void {
+        if (!anchor) return;
+        console.log("mouse over to : " + anchor.innerText);
+        let url = this.createUrl(anchor);
+        if (url) {
+            this.createThumbnailDirect(url, x, y);
+        }
+        else {
+            this.createUserThumbnail(anchor, x, y);
+        }
+    }
+    private createThumbnailDirect(url: string, x: number, y: number): void {
         this.removeThumbnail();
         console.log("created thumbnail url : " + url);
 

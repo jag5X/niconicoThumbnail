@@ -16,6 +16,16 @@ li
     list-style: none;
 }
 
+ul.mark-list
+{
+    margin:     0px;
+}
+li.mark-list
+{
+    margin:     0px;
+    list-style: square;
+}
+
 li label
 {
     cursor:         pointer;
