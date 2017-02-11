@@ -45,14 +45,14 @@ class ThumbnailManager {
 
         // マウスアウト時サムネイル消去（設定による）
         $(document).on("mouseout", "a", () => {
-            if (!this.settings.isShowUntilClick()) {
+            if (!this.settings.isKeepUntilClick()) {
                 this.removeThumbnail();
             }
         });
 
         // マウスダウン時サムネイル消去
         $(document).mousedown((e: JQueryMouseEventObject) => {
-            if (this.settings.isShowUntilClick() ||
+            if (this.settings.isKeepUntilClick() ||
                 e.target.tagName == "A") {
                 this.removeThumbnail();
             }

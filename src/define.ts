@@ -15,7 +15,7 @@ enum ThumbnailKind {
     Count
 }
 
-class SettingsId {
+class ThumbnailSettings {
     static watch = "watch";
     static mylist = "mylist";
     static user = "user";
@@ -23,28 +23,31 @@ class SettingsId {
     static seiga = "seiga";
     static live = "live";
     static solid = "solid";
-    static removeClick = "removeClick";
 
     static getId(kind: ThumbnailKind): string {
         switch (kind) {
             case ThumbnailKind.Watch:
-                return SettingsId.watch;
+                return ThumbnailSettings.watch;
             case ThumbnailKind.Mylist:
-                return SettingsId.mylist;
+                return ThumbnailSettings.mylist;
             case ThumbnailKind.User:
-                return SettingsId.user;
+                return ThumbnailSettings.user;
             case ThumbnailKind.Community:
-                return SettingsId.community;
+                return ThumbnailSettings.community;
             case ThumbnailKind.Seiga:
-                return SettingsId.seiga;
+                return ThumbnailSettings.seiga;
             case ThumbnailKind.Live:
-                return SettingsId.live;
+                return ThumbnailSettings.live;
             case ThumbnailKind.Solid:
-                return SettingsId.solid;
+                return ThumbnailSettings.solid;
             default:
                 return null;
         }
     }
+}
+
+class OtherSettings {
+    static keepUntilClick = "removeClick";
 }
 
 class Settings {
@@ -52,9 +55,9 @@ class Settings {
 
     constructor() {
         for (let i = 0; i < ThumbnailKind.Count; i++) {
-            this.applying[SettingsId.getId(i)] = true;
+            this.applying[ThumbnailSettings.getId(i)] = true;
         }
-        this.applying[SettingsId.removeClick] = false;
+        this.applying[OtherSettings.keepUntilClick] = false;
     }
 
     public set(data: Map<string, boolean>): void {
@@ -68,14 +71,14 @@ class Settings {
     }
 
     public isShow(kind: ThumbnailKind): boolean {
-        let id = SettingsId.getId(kind);
+        let id = ThumbnailSettings.getId(kind);
         if (id == null) {
             return false;
         }
         return this.applying[id];
     }
 
-    public isShowUntilClick(): boolean {
-        return this.applying[SettingsId.removeClick];
+    public isKeepUntilClick(): boolean {
+        return this.applying[OtherSettings.keepUntilClick];
     }
 }
