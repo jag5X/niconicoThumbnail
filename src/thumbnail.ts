@@ -28,7 +28,7 @@ class ThumbnailManager {
 
         // 各リンク先種類の正規表現定義
         this.regExps = new Map<ThumbnailKind, RegExp>();
-        this.regExps[ThumbnailKind.Watch] = /([sn]m[0-9]+)|watch\/([0-9]+)/;
+        this.regExps[ThumbnailKind.Watch] = /((?:sm|nm|so)[0-9]+)|watch\/([0-9]+)/;
         this.regExps[ThumbnailKind.Mylist] = /(mylist\/[0-9]+)/;
         this.regExps[ThumbnailKind.User] = /(user\/[0-9]+)/;
         this.regExps[ThumbnailKind.Community] = /(co[0-9]+)/;
@@ -71,10 +71,7 @@ class ThumbnailManager {
         // マウスダウン時サムネイル消去
         $(document).mousedown((e: JQueryMouseEventObject) => {
             this.isCancel = true;
-            if (this.settings.isKeepUntilClick() ||
-                e.target.tagName == "A") {
-                this.removeThumbnail();
-            }
+            this.removeThumbnail();
         });
     }
 
@@ -86,11 +83,10 @@ class ThumbnailManager {
         }
     }
 
-    private createUrl(anchor: HTMLAnchorElement): string {
+    private createUrl(id: string): string {
         if (this.isDisabledNormalThumbnail) {
             return null;
         }
-        let id = anchor.innerText;
         if (!id) {
             return null;
         }
@@ -104,6 +100,9 @@ class ThumbnailManager {
             }
             for (let j = 1; j < result.length; j++) {
                 if (result[j]) {
+                    if (result[j].startsWith("so")) {
+                        return result[j];
+                    }
                     return this.thumbnailUrl[i] + result[j];
                 }
             }
@@ -139,7 +138,6 @@ class ThumbnailManager {
             if (!result) {
                 break;
             }
-            this.isCancel = false;
             let id: string = result[1];
             $.ajax({
                 url: "http://ext.nicovideo.jp/api/getthumbinfo/" + id,
@@ -176,9 +174,27 @@ class ThumbnailManager {
     private createThumbnail(anchor: HTMLAnchorElement, x: number, y: number): void {
         if (!anchor) return;
         console.log("mouse over to : " + anchor.innerText);
-        let url = this.createUrl(anchor);
+        this.isCancel = false;
+        let url = this.createUrl(anchor.innerText);
         if (url) {
-            this.createThumbnailDirect(url, x, y);
+            if (url.startsWith("s")) {
+                let xhrObj: XMLHttpRequest;
+                $.ajax("http://www.nicovideo.jp/watch/" + url,
+                {
+                    type: "GET",
+                    dataType: "html",
+                    xhr: () => xhrObj = new XMLHttpRequest(),
+                    complete: _ => {
+                        if (this.isCancel) {
+                            return;
+                        }
+                        this.createThumbnailDirect(this.createUrl(xhrObj.responseURL), x, y);
+                    }
+                });
+            }
+            else {
+                this.createThumbnailDirect(url, x, y);
+            }
         }
         else {
             this.createUserThumbnail(anchor, x, y);
