@@ -9,7 +9,6 @@ class ThumbnailManager {
     private thumbnail: HTMLIFrameElement;
     private settings: Settings;
     private isShowed: boolean;
-    private isDisabledNormalThumbnail: boolean;
     private isCancel: boolean;
 
     private watchHostName = "www.nicovideo.jp";
@@ -44,9 +43,6 @@ class ThumbnailManager {
         this.locationPath[LocationKind.VideoExplorer] = "/" + LocationSettings.videoExplorer;
         
         this.isShowed = false;
-
-        this.isDisabledNormalThumbnail = location.hostname == this.watchHostName &&
-            location.pathname.startsWith(this.locationPath[LocationKind.Ranking]);
 
         // 設定読込
         this.settings = new Settings();
@@ -84,9 +80,6 @@ class ThumbnailManager {
     }
 
     private createUrl(id: string): string {
-        if (this.isDisabledNormalThumbnail) {
-            return null;
-        }
         if (!id) {
             return null;
         }
@@ -175,6 +168,12 @@ class ThumbnailManager {
         if (!anchor) return;
         console.log("mouse over to : " + anchor.innerText);
         this.isCancel = false;
+        if (anchor.classList.contains("itemContent")) {
+            // ランキング画面の動画リンクではユーザーサムネイル処理だけ行う
+            this.createUserThumbnail(anchor, x, y);
+            return;
+        }
+
         let url = this.createUrl(anchor.innerText);
         if (url) {
             if (url.startsWith("s")) {
@@ -220,7 +219,6 @@ class ThumbnailManager {
             zIndex: 2147483647,
         });
         document.body.appendChild(this.thumbnail);
-
         this.isShowed = true;
     }
 }
